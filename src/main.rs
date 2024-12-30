@@ -1,8 +1,9 @@
 pub mod database;
+use calamine::{open_workbook, Error, RangeDeserializerBuilder, Reader, Xlsx};
 use chrono::prelude::*;
-use std::io;
-
+use rust_xlsxwriter::{Workbook, XlsxError};
 use serde::{Deserialize, Serialize};
+use std::io;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Day {
@@ -13,6 +14,16 @@ struct Day {
     Fri: String,
     Sat: String,
     Sun: String,
+}
+#[derive(Debug, Deserialize)]
+struct MyRow {
+    column1: String,
+    column2: String,
+    column3: String,
+    column4: String,
+    column5: String,
+    column6: String,
+    column7: String,
 }
 
 impl Day {
@@ -43,20 +54,39 @@ impl Day {
 
 fn main() {
     //database::get_all_students()
-    let _period = "OTOÑO";
-    let _plantilla = "template.xlsx";
-    let local: DateTime<Local> = Local::now(); //`2014-11-28T21:45:59.324310806+09:00`
-    let _day_month_year = local.format("%d-%m-%Y").to_string(); // 09-09-1999
+    let _period = String::from("OTOÑO");
+    let plantilla = String::from("template.xlsx");
+    let _day_month_year = Local::now().format("%d-%m-%Y").to_string(); // 09-09-1999
     let current_day = chrono::offset::Local::now()
         .date_naive()
         .weekday()
         .to_string();
     let spanish_day = Day::spanish();
     let mapping = spanish_day.get_day(&current_day).unwrap();
+    println!("{}", mapping);
 
-    println!("{:?}", mapping);
-    //let find_current = day_list.iter().find(|item| **item == current_day);
-    //println!("{:?}", find_current);
+    let path = format!("{}/{}", env!("CARGO_MANIFEST_DIR"), plantilla);
+    println!("{}", path);
+    let mut excel: Xlsx<_> = open_workbook(path).unwrap();
+
+    if let Ok(r) = excel.worksheet_range("ASISTENCIA") {
+        let rows: Vec<_> = r.rows().collect();
+        if !rows.is_empty() {
+            let headers: Vec<_> = rows[0].to_vec();
+            println!("row={:?}", headers);
+
+            let mut workbook = Workbook::new();
+
+            let worksheet = workbook.add_worksheet();
+
+            let mut col = 0;
+            for row in headers {
+                worksheet.write(0, col, row.to_string()).unwrap();
+                col += 1;
+            }
+            workbook.save("tutorial1.xlsx").unwrap();
+        }
+    }
 
     //let mut selection = String::new();
     //io::stdin()
