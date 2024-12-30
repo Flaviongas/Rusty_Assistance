@@ -81,6 +81,7 @@ fn main() {
 
             let mut col = 0;
             for row in headers {
+                // TODO: Add bg-color and font-color
                 worksheet.write(0, col, row.to_string()).unwrap();
                 col += 1;
             }
