@@ -1,7 +1,8 @@
+#![allow(non_snake_case)]
 pub mod database;
-use calamine::{open_workbook, Error, RangeDeserializerBuilder, Reader, Xlsx};
+use calamine::{open_workbook, Reader, Xlsx};
 use chrono::prelude::*;
-use rust_xlsxwriter::{Workbook, XlsxError};
+use rust_xlsxwriter::{Color, Format, Workbook};
 use serde::{Deserialize, Serialize};
 use std::io;
 
@@ -14,16 +15,6 @@ struct Day {
     Fri: String,
     Sat: String,
     Sun: String,
-}
-#[derive(Debug, Deserialize)]
-struct MyRow {
-    column1: String,
-    column2: String,
-    column3: String,
-    column4: String,
-    column5: String,
-    column6: String,
-    column7: String,
 }
 
 impl Day {
@@ -53,45 +44,58 @@ impl Day {
 }
 
 fn main() {
-    //database::get_all_students()
-    let _period = String::from("OTOÑO");
     let plantilla = String::from("template.xlsx");
-    let _day_month_year = Local::now().format("%d-%m-%Y").to_string(); // 09-09-1999
+    let day_month = Local::now().format("%d-%m").to_string(); // 09-09-1999
     let current_day = chrono::offset::Local::now()
         .date_naive()
         .weekday()
         .to_string();
     let spanish_day = Day::spanish();
     let mapping = spanish_day.get_day(&current_day).unwrap();
-    println!("{}", mapping);
 
     let path = format!("{}/{}", env!("CARGO_MANIFEST_DIR"), plantilla);
-    println!("{}", path);
     let mut excel: Xlsx<_> = open_workbook(path).unwrap();
 
     if let Ok(r) = excel.worksheet_range("ASISTENCIA") {
         let rows: Vec<_> = r.rows().collect();
         if !rows.is_empty() {
             let headers: Vec<_> = rows[0].to_vec();
-            println!("row={:?}", headers);
 
             let mut workbook = Workbook::new();
 
             let worksheet = workbook.add_worksheet();
 
             let mut col = 0;
+            let color_format = Format::new()
+                .set_background_color(Color::RGB(0xc00000))
+                .set_font_color(Color::White)
+                .set_bold()
+                .set_border(rust_xlsxwriter::FormatBorder::Thin);
             for row in headers {
-                // TODO: Add bg-color and font-color
-                worksheet.write(0, col, row.to_string()).unwrap();
+                worksheet
+                    .write_string_with_format(0, col, row.to_string(), &color_format)
+                    .unwrap();
                 col += 1;
             }
-            workbook.save("tutorial1.xlsx").unwrap();
+            let _ = worksheet.set_column_width_pixels(0, 110);
+            let _ = worksheet.set_column_width_pixels(1, 140);
+            let _ = worksheet.set_column_width_pixels(2, 110);
+            let _ = worksheet.set_column_width_pixels(3, 200);
+            let _ = worksheet.set_column_width_pixels(4, 200);
+            let _ = worksheet.set_column_width_pixels(5, 100);
+            let _ = worksheet.set_column_width_pixels(6, 400);
+            let mut selection = String::new();
+            io::stdin()
+                .read_line(&mut selection)
+                .expect("Crash while reading name");
+            database::get_student(selection);
+            // TODO: Add students or create them
+            workbook
+                .save(format!(
+                    "REGISTROS DE ASISTENCIA - SAAC ({} {} INFORMATICA).xlsx",
+                    mapping, day_month
+                ))
+                .unwrap();
         }
     }
-
-    //let mut selection = String::new();
-    //io::stdin()
-    //    .read_line(&mut selection)
-    //    .expect("Crash while reading name");
-    //database::get_student(selection)
 }
