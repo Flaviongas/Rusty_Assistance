@@ -45,7 +45,8 @@ impl Day {
 
 fn main() {
     let plantilla = String::from("template.xlsx");
-    let day_month = Local::now().format("%d-%m").to_string(); // 09-09-1999
+    let day_month = Local::now().format("%d-%m").to_string(); // 09-09
+    let day_month_year = Local::now().format("%d-%m-%Y").to_string(); // 09-09
     let current_day = chrono::offset::Local::now()
         .date_naive()
         .weekday()
@@ -84,12 +85,38 @@ fn main() {
             let _ = worksheet.set_column_width_pixels(4, 200);
             let _ = worksheet.set_column_width_pixels(5, 100);
             let _ = worksheet.set_column_width_pixels(6, 400);
-            let mut selection = String::new();
+            println!("How many students? ");
+            let mut amount = String::new();
             io::stdin()
-                .read_line(&mut selection)
-                .expect("Crash while reading name");
-            database::get_student(selection);
-            // TODO: Add students or create them
+                .read_line(&mut amount)
+                .expect("Crash while reading N° of Students");
+            for i in 0..amount.trim().parse::<u8>().unwrap() {
+                println!("Enter name of student: ");
+                let mut name = String::new();
+                io::stdin()
+                    .read_line(&mut name)
+                    .expect("Crash while reading name of Student");
+                let student = database::get_student(name);
+                let last_names = format!("{} {}", student.Apellido1, student.Apellido2);
+
+                worksheet
+                    .write((i + 1).into(), 0, day_month_year.clone())
+                    .unwrap();
+                worksheet
+                    .write((i + 1).into(), 1, student.Rut.to_string())
+                    .unwrap();
+                worksheet
+                    .write((i + 1).into(), 2, student.DV.to_string())
+                    .unwrap();
+                worksheet
+                    .write((i + 1).into(), 3, student.Nombres.to_string())
+                    .unwrap();
+                worksheet.write((i + 1).into(), 4, last_names).unwrap();
+                worksheet.write((i + 1).into(), 5, "1").unwrap();
+                worksheet
+                    .write((i + 1).into(), 6, "FÍSICA MECANICA / 3")
+                    .unwrap();
+            }
             workbook
                 .save(format!(
                     "REGISTROS DE ASISTENCIA - SAAC ({} {} INFORMATICA).xlsx",
