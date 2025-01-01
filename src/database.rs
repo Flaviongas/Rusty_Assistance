@@ -1,4 +1,6 @@
+use colored::*;
 use std::io;
+
 #[derive(Debug, Clone)]
 pub struct Student {
     pub ID: u8,
@@ -8,6 +10,7 @@ pub struct Student {
     pub Apellido2: String,
     pub DV: u8,
 }
+
 pub fn get_student(name: String) -> Student {
     let formatted_name = name.trim();
     let pattern = format!("{}%", formatted_name);
@@ -38,11 +41,14 @@ pub fn get_student(name: String) -> Student {
         students.push(currentStudent);
     }
     if students.len() > 1 {
+        println!("{}", "Multiple students found:".yellow().bold());
         for i in 0..students.len() {
-            println!("Option {}", i);
+            println!("{} {}", "Option".cyan().bold(), i);
             println!(
                 "{} {} {}",
-                students[i].Nombres, students[i].Apellido1, students[i].Apellido2
+                students[i].Nombres.green(),
+                students[i].Apellido1.blue(),
+                students[i].Apellido2.red()
             );
         }
         let mut selected_student = String::new();
@@ -54,49 +60,55 @@ pub fn get_student(name: String) -> Student {
             .parse()
             .expect("Error while parsing selection");
         println!(
-            "Student selected: {}",
-            students[parsed_selected_student].Nombres
+            "{} {}",
+            "Student selected:".yellow().bold(),
+            students[parsed_selected_student].Nombres.green()
         );
         students[parsed_selected_student].clone()
     } else if students.len() == 1 {
         let selected = students[0].clone();
-        println!("Selected: {:?}", selected.Nombres);
+        println!(
+            "{} {}",
+            "Selected:".yellow().bold(),
+            selected.Nombres.green()
+        );
         selected
     } else {
-        println!("Estudiante no existe");
+        println!("{}", "Estudiante no existe".red().bold());
         createStudent()
     }
 }
+
 pub fn createStudent() -> Student {
-    println!("Insert rut: ");
+    println!("{}", "Insert rut:".cyan().bold());
     let mut rut = String::new();
     io::stdin()
         .read_line(&mut rut)
         .expect("Crash while reading rut");
     rut = rut.trim().parse().expect("Error while parsing rut");
 
-    println!("Insert dv: ");
+    println!("{}", "Insert dv:".cyan().bold());
     let mut dv = String::new();
     io::stdin()
         .read_line(&mut dv)
         .expect("Crash while reading dv");
     dv = dv.trim().parse().expect("Error while parsing dv");
 
-    println!("Insert names: ");
+    println!("{}", "Insert names:".cyan().bold());
     let mut names = String::new();
     io::stdin()
         .read_line(&mut names)
         .expect("Crash while reading name");
     names = names.trim().to_string().to_uppercase();
 
-    println!("Insert lastName1: ");
+    println!("{}", "Insert lastName1:".cyan().bold());
     let mut lastName1 = String::new();
     io::stdin()
         .read_line(&mut lastName1)
         .expect("Crash while reading lastName1");
     lastName1 = lastName1.trim().to_string().to_uppercase();
 
-    println!("Insert lastName2: ");
+    println!("{}", "Insert lastName2:".cyan().bold());
     let mut lastName2 = String::new();
     io::stdin()
         .read_line(&mut lastName2)
@@ -108,7 +120,7 @@ pub fn createStudent() -> Student {
         "INSERT INTO alumnos VALUES (null,{},'{}','{}','{}',{});",
         rut, names, lastName1, lastName2, dv
     );
-    println!("{}", query);
+    println!("{}", query.magenta());
     connection.execute(query).unwrap();
     let newStudent = Student {
         ID: 99,
@@ -118,6 +130,6 @@ pub fn createStudent() -> Student {
         Apellido2: lastName2.trim().to_string(),
         DV: dv.parse().expect("DV not valid"),
     };
-    println!("Student added: {:?}", newStudent);
+    println!("{} {:?}", "Student added:".green().bold(), newStudent);
     newStudent
 }
