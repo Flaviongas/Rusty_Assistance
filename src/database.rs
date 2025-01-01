@@ -1,5 +1,4 @@
-use sqlite::State;
-
+use std::io;
 #[derive(Debug, Clone)]
 pub struct Student {
     pub ID: u8,
@@ -49,6 +48,60 @@ pub fn get_student(name: String) -> Student {
     } else {
         // TODO: Be able to create
         println!("Estudiante no existe");
-        students[0].clone()
+        createStudent()
     }
+}
+pub fn createStudent() -> Student {
+    println!("Insert rut: ");
+    let mut rut = String::new();
+    io::stdin()
+        .read_line(&mut rut)
+        .expect("Crash while reading rut");
+    rut = rut.trim().parse().expect("Error while parsing rut");
+
+    println!("Insert dv: ");
+    let mut dv = String::new();
+    io::stdin()
+        .read_line(&mut dv)
+        .expect("Crash while reading dv");
+    dv = dv.trim().parse().expect("Error while parsing dv");
+
+    println!("Insert names: ");
+    let mut names = String::new();
+    io::stdin()
+        .read_line(&mut names)
+        .expect("Crash while reading name");
+    names = names.trim().to_string();
+
+    println!("Insert lastName1: ");
+    let mut lastName1 = String::new();
+    io::stdin()
+        .read_line(&mut lastName1)
+        .expect("Crash while reading lastName1");
+    lastName1 = lastName1.trim().to_string();
+
+    println!("Insert lastName2: ");
+    let mut lastName2 = String::new();
+    io::stdin()
+        .read_line(&mut lastName2)
+        .expect("Crash while reading lastName2");
+    lastName2 = lastName2.trim().to_string();
+
+    let connection = sqlite::open("alumnos.db").unwrap();
+    let query = format!(
+        "INSERT INTO alumnos VALUES (null,{},'{}','{}','{}',{});",
+        rut, names, lastName1, lastName2, dv
+    );
+    println!("{}", query);
+    connection.execute(query).unwrap();
+    let newStudent = Student {
+        ID: 99,
+        Rut: rut.parse().expect("Rut not valid"),
+        Nombres: names.trim().to_string(),
+        Apellido1: lastName1.trim().to_string(),
+        Apellido2: lastName2.trim().to_string(),
+        DV: dv.parse().expect("DV not valid"),
+    };
+    println!("Student added: {:?}", newStudent);
+    newStudent
 }
