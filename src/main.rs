@@ -51,7 +51,7 @@ fn main() {
     );
     let plantilla = String::from("template.xlsx");
     let day_month = Local::now().format("%d-%m").to_string();
-    let day_month_year = Local::now().format("%d-%m-%Y").to_string();
+    let day_month_year = Local::now().format("%d/%m/%Y").to_string();
     let current_day = chrono::offset::Local::now()
         .date_naive()
         .weekday()
@@ -75,6 +75,7 @@ fn main() {
                 .set_font_color(Color::White)
                 .set_bold()
                 .set_border(rust_xlsxwriter::FormatBorder::Thin);
+            let border = Format::new().set_border(rust_xlsxwriter::FormatBorder::Thin);
 
             println!("{}", "Writing headers to new workbook:".cyan().bold());
             let mut col = 0;
@@ -110,21 +111,25 @@ fn main() {
                 let last_names = format!("{} {}", student.Apellido1, student.Apellido2);
 
                 worksheet
-                    .write((i + 1).into(), 0, day_month_year.clone())
+                    .write_with_format((i + 1).into(), 0, day_month_year.clone(), &border)
                     .unwrap();
                 worksheet
-                    .write((i + 1).into(), 1, student.Rut.to_string())
+                    .write_with_format((i + 1).into(), 1, student.Rut.to_string(), &border)
                     .unwrap();
                 worksheet
-                    .write((i + 1).into(), 2, student.DV.to_string())
+                    .write_with_format((i + 1).into(), 2, student.DV.to_string(), &border)
                     .unwrap();
                 worksheet
-                    .write((i + 1).into(), 3, student.Nombres.to_string())
+                    .write_with_format((i + 1).into(), 3, student.Nombres.to_string(), &border)
                     .unwrap();
-                worksheet.write((i + 1).into(), 4, last_names).unwrap();
-                worksheet.write((i + 1).into(), 5, "1").unwrap();
                 worksheet
-                    .write((i + 1).into(), 6, "FÍSICA MECANICA / 3")
+                    .write_with_format((i + 1).into(), 4, last_names, &border)
+                    .unwrap();
+                worksheet
+                    .write_with_format((i + 1).into(), 5, "1", &border)
+                    .unwrap();
+                worksheet
+                    .write_with_format((i + 1).into(), 6, "FÍSICA MECANICA / 3", &border)
                     .unwrap();
             }
 
