@@ -46,7 +46,6 @@ pub fn get_student(name: String) -> Student {
         println!("Selected: {:?}", selected.Nombres);
         selected
     } else {
-        // TODO: Be able to create
         println!("Estudiante no existe");
         createStudent()
     }
@@ -71,21 +70,21 @@ pub fn createStudent() -> Student {
     io::stdin()
         .read_line(&mut names)
         .expect("Crash while reading name");
-    names = names.trim().to_string();
+    names = names.trim().to_string().to_uppercase();
 
     println!("Insert lastName1: ");
     let mut lastName1 = String::new();
     io::stdin()
         .read_line(&mut lastName1)
         .expect("Crash while reading lastName1");
-    lastName1 = lastName1.trim().to_string();
+    lastName1 = lastName1.trim().to_string().to_uppercase();
 
     println!("Insert lastName2: ");
     let mut lastName2 = String::new();
     io::stdin()
         .read_line(&mut lastName2)
         .expect("Crash while reading lastName2");
-    lastName2 = lastName2.trim().to_string();
+    lastName2 = lastName2.trim().to_string().to_uppercase();
 
     let connection = sqlite::open("alumnos.db").unwrap();
     let query = format!(
