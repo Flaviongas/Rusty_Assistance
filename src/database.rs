@@ -38,9 +38,26 @@ pub fn get_student(name: String) -> Student {
         students.push(currentStudent);
     }
     if students.len() > 1 {
-        // TODO: Be able to select
-        println!("students: {:?}", students);
-        students[0].clone()
+        for i in 0..students.len() {
+            println!("Option {}", i);
+            println!(
+                "{} {} {}",
+                students[i].Nombres, students[i].Apellido1, students[i].Apellido2
+            );
+        }
+        let mut selected_student = String::new();
+        io::stdin()
+            .read_line(&mut selected_student)
+            .expect("Crash while reading selection");
+        let parsed_selected_student: usize = selected_student
+            .trim()
+            .parse()
+            .expect("Error while parsing selection");
+        println!(
+            "Student selected: {}",
+            students[parsed_selected_student].Nombres
+        );
+        students[parsed_selected_student].clone()
     } else if students.len() == 1 {
         let selected = students[0].clone();
         println!("Selected: {:?}", selected.Nombres);

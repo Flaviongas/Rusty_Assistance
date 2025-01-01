@@ -123,6 +123,7 @@ fn main() {
                     mapping, day_month
                 ))
                 .unwrap();
+            println!("Excel file compiled sucessfully")
         }
     }
 }
